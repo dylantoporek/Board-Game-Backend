@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  player_avatar: MyString
+  player_position: 1
+  cpu1_avatar: MyString
+  cpu1_position: 1
+  cpu2_avatar: MyString
+  cpu2_position: 1
+  cpu3_avatar: MyString
+  cpu3_position: 1
+  user: one
+
+two:
+  player_avatar: MyString
+  player_position: 1
+  cpu1_avatar: MyString
+  cpu1_position: 1
+  cpu2_avatar: MyString
+  cpu2_position: 1
+  cpu3_avatar: MyString
+  cpu3_position: 1
+  user: two
