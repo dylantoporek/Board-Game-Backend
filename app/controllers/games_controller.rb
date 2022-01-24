@@ -8,6 +8,11 @@ class GamesController < ApplicationController
         render json: game, status: :created
     end
 
+    def show
+        game = @current_user.games.find_by(id: params[:id])
+        render json: game, status: :created
+    end
+
     private
 
     def game_params
