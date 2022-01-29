@@ -25,7 +25,6 @@ class GamesController < ApplicationController
     end
 
     # patch /games/id
-
     def update
         game = @current_user.games.find_by(id: params[:id])
         game.update(
