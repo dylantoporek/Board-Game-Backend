@@ -2,7 +2,7 @@ class GamesController < ApplicationController
 
     # get /games
     def index
-        render json: Game.all
+        render json: @current_user.games.all
     end
 
     # post /games
