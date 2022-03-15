@@ -5,6 +5,7 @@ class ApplicationController < ActionController::API
     skip_before_action :verify_authenticity_token
     rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable_entity_response
     before_action :authorize
+    after_action :set_csrf_cookie
 
     private
 
@@ -16,6 +17,15 @@ class ApplicationController < ActionController::API
 
       def render_unprocessable_entity_response(exception)
         render json: { errors: exception.record.errors.full_messages }, status: :unprocessable_entity
+      end
+
+      def set_csrf_cookie
+        cookies["CSRF-TOKEN"] = {
+          value: form_authenticity_token,
+          secure: true,
+          same_site: :None,
+          domain: 'https://frozen-eyrie-81829.herokuapp.com'
+        }
       end
 
 end
