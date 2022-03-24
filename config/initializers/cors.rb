@@ -5,14 +5,14 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
-Rails.application.config.middleware.insert_before 0, Rack::Cors do
-  allow do
-    origins "https://hungry-nightingale-1b562f.netlify.app"
-    # origins "http://localhost:3000"
+# Rails.application.config.middleware.insert_before 0, Rack::Cors do
+#   allow do
+#     origins "https://hungry-nightingale-1b562f.netlify.app"
+#     # origins "http://localhost:3000"
 
-    resource "*",
-      headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head],
-      credentials: true
-  end
-end
+#     resource "*",
+#       headers: :any,
+#       methods: [:get, :post, :put, :patch, :delete, :options, :head],
+#       credentials: true
+#   end
+# end
