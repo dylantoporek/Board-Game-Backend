@@ -399,6 +399,18 @@ h3 {
     transform: translateY(-5px);
   }
 }
+.badge--idle {
+  animation: idlebob 2.2s ease-in-out infinite;
+}
+@keyframes idlebob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
 
 /* ---------------- board ---------------- */
 
@@ -408,15 +420,204 @@ h3 {
   gap: 20px;
   align-items: start;
 }
+.game__board {
+  position: relative;
+}
+.board-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  padding: 104px 22px 42px;
+  background: linear-gradient(180deg, #7fc7ff 0%, #a9dbff 42%, #d3f0ff 100%);
+  box-shadow: var(--shadow), inset 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+/* green hilltop the castle and trees stand on, at the top (the goal) */
+.scene-hill {
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 74%;
+  height: 130px;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(120% 100% at 50% 20%, #6fc06a, #47a04a 70%, #3c8d40);
+}
+.scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.scene--back {
+  z-index: 0;
+}
+.scene--front {
+  z-index: 2;
+}
 .board {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(var(--cols), 1fr);
   gap: 8px;
-  padding: 16px;
-  border-radius: 22px;
+  padding: 14px;
+  border-radius: 20px;
   background: linear-gradient(160deg, #63c56a, #3f9b4a);
   border: 4px solid #2f7a3a;
-  box-shadow: var(--shadow), inset 0 0 0 3px rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 22px rgba(12, 6, 40, 0.3), inset 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+/* --- scenery pieces --- */
+.scene-sun {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  animation: spin 70s linear infinite;
+}
+.cloud {
+  position: absolute;
+  animation: drift linear infinite;
+}
+.cloud--1 {
+  top: 8px;
+  left: -14%;
+  width: 108px;
+  opacity: 0.92;
+  animation-duration: 36s;
+}
+.cloud--2 {
+  top: 28px;
+  left: -34%;
+  width: 78px;
+  opacity: 0.7;
+  animation-duration: 50s;
+}
+.cloud--3 {
+  top: 0;
+  left: 24%;
+  width: 66px;
+  opacity: 0.78;
+  animation-duration: 44s;
+}
+.scene-castle {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.18));
+}
+.scene-tree {
+  position: absolute;
+  top: 46px;
+}
+.scene-tree--l {
+  left: 12%;
+}
+.scene-tree--r {
+  right: 12%;
+  top: 52px;
+}
+.scene-bush {
+  position: absolute;
+  bottom: 2px;
+}
+.scene-bush--l {
+  left: 3%;
+}
+.scene-bush--r {
+  right: 3%;
+}
+.scene-flower {
+  position: absolute;
+  bottom: 8px;
+}
+.scene-flower--1 {
+  left: 26%;
+}
+.scene-flower--2 {
+  left: 49%;
+  bottom: 5px;
+}
+.scene-flower--3 {
+  right: 26%;
+  bottom: 11px;
+}
+.firefly {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #fff7b0, #ffd23f);
+  box-shadow: 0 0 8px 2px rgba(255, 224, 102, 0.6);
+  animation: float ease-in-out infinite;
+}
+
+/* --- scenery animation --- */
+@keyframes drift {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(540px);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(6px, -12px);
+    opacity: 0.95;
+  }
+}
+.castle-flag,
+.tile-flag {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: flagwave 1.3s ease-in-out infinite;
+}
+@keyframes flagwave {
+  0%,
+  100% {
+    transform: skewY(0) scaleX(1);
+  }
+  50% {
+    transform: skewY(-7deg) scaleX(0.9);
+  }
+}
+.tile-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: starpulse 2.4s ease-in-out infinite;
+}
+@keyframes starpulse {
+  0%,
+  100% {
+    transform: rotate(-8deg) scale(1);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.14);
+  }
+}
+.tile-qblock {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: qbob 2s ease-in-out infinite;
+}
+@keyframes qbob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 .tile {
   position: relative;
@@ -438,7 +639,9 @@ h3 {
   color: #a99a6d;
 }
 .tile__icon {
-  font-size: 1.4rem;
+  display: inline-flex;
+  line-height: 0;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
 }
 .tile--start {
   background: #cdeacb;
@@ -609,6 +812,8 @@ h3 {
   backdrop-filter: blur(3px);
 }
 .results-card {
+  position: relative;
+  overflow: hidden;
   width: min(440px, 94vw);
   animation: pop 0.35s ease;
 }
@@ -712,5 +917,132 @@ h3 {
   .board {
     padding: 10px;
     gap: 5px;
+  }
+}
+
+/* ---------------- coins ---------------- */
+
+.coin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #a9791b;
+}
+.coin-chip::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fff2b0, #f4c430 60%, #d79a13);
+  box-shadow: inset 0 0 0 1.5px #d79a13;
+}
+.standings__coins {
+  font-size: 0.78rem;
+  color: #a9791b;
+  font-weight: 700;
+}
+
+/* floating "+N" coin toast over the board */
+.coin-toast {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  background: rgba(42, 33, 64, 0.9);
+  color: #ffe066;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  animation: toastpop 1.4s ease forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+@keyframes toastpop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 6px) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(1);
+  }
+}
+
+/* mute toggle in the topbar */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.icon-btn:active {
+  transform: translateY(2px);
+}
+
+/* ---------------- confetti ---------------- */
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+.confetti__bit {
+  position: absolute;
+  top: -16px;
+  animation-name: confettifall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes confettifall {
+  0% {
+    transform: translateY(-16px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(560px) rotate(var(--rot));
+    opacity: 0.9;
+  }
+}
+.podium__coins {
+  margin-left: auto;
+  font-weight: 700;
+  color: #a9791b;
+  white-space: nowrap;
+}
+
+/* respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .scene-sun,
+  .firefly,
+  .castle-flag,
+  .tile-flag,
+  .tile-star,
+  .tile-qblock,
+  .badge--idle,
+  .badge--active,
+  .die--rolling,
+  .confetti__bit {
+    animation: none !important;
+  }
+  .confetti {
+    display: none;
   }
 }

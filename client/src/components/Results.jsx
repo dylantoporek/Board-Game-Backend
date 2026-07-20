@@ -1,5 +1,6 @@
 import { getCharacter } from "../data/characters";
 import CharacterBadge from "./CharacterBadge";
+import Confetti from "./Confetti";
 
 const MEDALS = { 1: "🥇", 2: "🥈", 3: "🥉", 4: "🎗️" };
 const PLACE_LABEL = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th" };
@@ -12,6 +13,7 @@ export default function Results({ players, onPlayAgain, onExit }) {
 
   return (
     <div className="results">
+      {youWon && <Confetti />}
       <h2 className="results__title">{youWon ? "You win! 🎉" : "Race over!"}</h2>
       <p className="results__sub">
         {getCharacter(winner.character).name} reached the castle first.
@@ -27,6 +29,7 @@ export default function Results({ players, onPlayAgain, onExit }) {
               {getCharacter(p.character).name}
               {p.id === "player" && <span className="podium__you">You</span>}
             </span>
+            <span className="podium__coins">{p.coins} 🪙</span>
           </li>
         ))}
       </ol>

@@ -1,4 +1,4 @@
-import { FINISH } from "../data/board";
+import { FINISH, SPACES, TILE_REWARD } from "../data/board";
 
 export const PLAYER_IDS = ["player", "cpu1", "cpu2", "cpu3"];
 
@@ -12,6 +12,7 @@ export function createInitialState({ characters, positions = {} }) {
       isCPU: id !== "player",
       character: characters[id],
       position,
+      coins: 0,
       finished: position >= FINISH,
     };
   });
@@ -24,6 +25,7 @@ export function createInitialState({ characters, positions = {} }) {
     turnIndex: firstUnfinished(players, 0),
     phase: allFinished(players) ? "over" : "ready", // ready | rolling | over
     lastRoll: null,
+    lastEvent: null, // { playerId, coins, finished } — for toasts + sound
     round: 1,
   };
 }
@@ -64,18 +66,27 @@ export function reducer(state, action) {
       const target = Math.min(active.position + state.lastRoll, FINISH);
       active.position = target;
 
+      let justFinished = false;
       if (target >= FINISH && !active.finished) {
-        active.finished = true;
+        // Assign the place from how many have *already* finished, before marking
+        // this one — the first to arrive is 1st, not 2nd.
         active.place = nextPlace(players);
+        active.finished = true;
+        justFinished = true;
       }
 
+      // Coins for landing on a decorated tile (not the finish).
+      const reward = justFinished ? 0 : TILE_REWARD[SPACES[target]?.type] || 0;
+      active.coins += reward;
+      const lastEvent = { playerId: active.id, coins: reward, finished: justFinished };
+
       if (allFinished(players)) {
-        return { ...state, players, phase: "over" };
+        return { ...state, players, phase: "over", lastEvent };
       }
 
       const nextTurn = firstUnfinished(players, (state.turnIndex + 1) % players.length);
       const round = nextTurn <= state.turnIndex ? state.round + 1 : state.round;
-      return { ...state, players, turnIndex: nextTurn, phase: "ready", round };
+      return { ...state, players, turnIndex: nextTurn, phase: "ready", round, lastEvent };
     }
 
     default:
