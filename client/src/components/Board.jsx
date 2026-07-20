@@ -7,7 +7,7 @@ import {
   Firefly,
   Flower,
   FlagIcon,
-  CastleIcon,
+  GateIcon,
   StarIcon,
   QBlockIcon,
   Sun,
@@ -16,29 +16,31 @@ import {
 
 const TILE_ICON = {
   start: FlagIcon,
-  finish: CastleIcon,
+  finish: GateIcon,
   star: StarIcon,
   bonus: QBlockIcon,
 };
 
 const FIREFLIES = Array.from({ length: 7 }, (_, i) => ({
   left: `${8 + i * 12}%`,
-  top: `${20 + ((i * 37) % 60)}%`,
+  top: `${30 + ((i * 37) % 55)}%`,
   delay: `${(i * 0.7).toFixed(1)}s`,
   dur: `${(4 + (i % 3)).toFixed(1)}s`,
 }));
 
-// Renders the diorama (sky, scenery) and the serpentine trail, and drops each
-// player's token on its space.
+// Renders the diorama (sky, scenery, castle goal) and the climbing trail, and
+// drops each player's token on its space. The castle sits above the top-center
+// finish tile, so the final step walks the token into the gate.
 export default function Board({ players, activeId }) {
   return (
-    <div className="board-scene">
+    <div className="board-scene" style={{ "--cols": COLUMNS, "--rows": ROWS }}>
       <div className="scene scene--back" aria-hidden="true">
         <Sun className="scene-sun" />
         <Cloud className="cloud cloud--1" />
         <Cloud className="cloud cloud--2" />
         <Cloud className="cloud cloud--3" />
-        <Castle className="scene-castle" />
+        <div className="scene-hill" />
+        <Castle className="scene-castle" hill={false} />
         <Tree className="scene-tree scene-tree--l" />
         <Tree className="scene-tree scene-tree--r" />
         <Bush className="scene-bush scene-bush--l" />
@@ -50,9 +52,8 @@ export default function Board({ players, activeId }) {
 
       <div
         className="board"
-        style={{ "--cols": COLUMNS, "--rows": ROWS }}
         role="img"
-        aria-label="Game board: a trail of spaces leading to the castle"
+        aria-label="Game board: a trail climbing from the bottom-left up to the castle"
       >
         {SPACES.map((space) => {
           const here = players.filter((p) => p.position === space.index);

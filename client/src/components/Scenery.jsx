@@ -81,11 +81,11 @@ export function Flower({ className, color = "#f27da6" }) {
   );
 }
 
-export function Castle({ className }) {
+export function Castle({ className, hill = true }) {
   return (
     <svg className={className} viewBox="0 0 160 150" width="150" height="140" aria-hidden="true">
       {/* hill */}
-      <ellipse cx="80" cy="150" rx="95" ry="30" fill="#4aa956" />
+      {hill && <ellipse cx="80" cy="150" rx="95" ry="30" fill="#4aa956" />}
       {/* towers */}
       <g fill="#d9c7a3">
         <rect x="26" y="60" width="26" height="82" />
@@ -128,14 +128,14 @@ export function FlagIcon() {
   );
 }
 
-export function CastleIcon() {
+// The finish tile: a castle gate / archway the token walks through.
+export function GateIcon() {
   return (
     <svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
-      <rect x="6" y="14" width="20" height="14" fill="#d9c7a3" />
-      <path d="M6 14 h4 v-3 h3 v3 h6 v-3 h3 v3 h4 v3 h-20 z" fill="#c9b48c" />
-      <rect x="13" y="19" width="6" height="9" fill="#7a5a86" />
-      <line x1="16" y1="11" x2="16" y2="5" stroke="#8a6d3b" strokeWidth="2" />
-      <polygon className="tile-flag" points="16,5 24,8 16,11" fill="#2b7fd4" />
+      <rect x="5" y="9" width="22" height="20" rx="2" fill="#d9c7a3" />
+      <path d="M5 9 h4 v-3 h3 v3 h8 v-3 h3 v3 h4 v3 h-22 z" fill="#c9b48c" />
+      <path d="M11 29 v-9 a5 5 0 0 1 10 0 v9 z" fill="#6a4a76" />
+      <path d="M13 29 v-8 a3 3 0 0 1 6 0 v8" fill="none" stroke="#ffd23f" strokeWidth="1.4" />
     </svg>
   );
 }
