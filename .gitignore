@@ -21,3 +21,9 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Node
+/node_modules
+.env
+.vercel
+/client/node_modules
