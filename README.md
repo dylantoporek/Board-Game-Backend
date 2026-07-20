@@ -6,13 +6,13 @@ and board positions) that can be created, loaded, updated, and deleted.
 
 Originally a Rails 7 + Heroku app, the backend is now a **Node/Express API that
 deploys to Vercel for free**, backed by a free [Neon](https://neon.tech)
-Postgres database. When a production build of the React frontend is placed in
-`public/`, it is served from the same deployment, so one Vercel project can run
-the whole app.
+Postgres database. A fresh **React + Vite** frontend lives in `client/` and
+builds into `public/`, which is served from the same deployment — so one Vercel
+project runs the whole app (frontend + API).
 
-> Note: the frontend ([Nintendo-Land](https://github.com/dylantoporek/Nintendo-Land))
-> still talks to the old Rails API and needs its own updates to use this Node
-> backend — those changes are intentionally left for a separate pass.
+The frontend is a Mario Party-style race to the castle: log in, pick a
+character, and roll the dice against three CPU rivals on a procedurally drawn
+board (no static board image). Games save to and load from the API.
 
 ## Architecture
 
@@ -23,10 +23,33 @@ the whole app.
 - `server/local.js` — local dev server (API + static `public/` with SPA fallback)
 - `db/schema.sql` — schema (port of the old Rails `schema.rb`)
 - `scripts/seed.js` — creates the tables; safe to re-run
-- `public/` — production build of the React frontend, served statically with SPA fallback
+- `client/` — the React + Vite frontend source
+- `public/` — production build of the frontend, served statically with SPA fallback
 
 The old Rails app (`app/`, `config/`, `Gemfile`, …) is kept in the repo for
 reference but is no longer used; it can be deleted whenever you like.
+
+## Frontend (client/)
+
+The UI is a React + Vite single-page app that talks to `/api/v1`.
+
+```sh
+cd client
+npm install
+npm run dev     # http://localhost:5173, proxies /api to the backend on :3000
+```
+
+Run the backend (`npm run dev` in the repo root) alongside it during
+development. To ship a change, rebuild the static bundle and commit it:
+
+```sh
+cd client
+npm run build   # regenerates ../public
+```
+
+`public/` is committed so Vercel serves the app with no build step. The
+character roster and board layout live in `client/src/data/`, and the turn
+logic is in `client/src/game/` and `client/src/hooks/`.
 
 ## Deploying (free)
 
