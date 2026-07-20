@@ -1,17 +1,24 @@
 import { getCharacter } from "../data/characters";
 
 // A round character token: colored disc, initial, and a little emoji accent.
-export default function CharacterBadge({ character, size = 48, showEmoji = true, active = false }) {
+export default function CharacterBadge({
+  character,
+  size = 48,
+  showEmoji = true,
+  active = false,
+  idleDelay = null,
+}) {
   const c = getCharacter(typeof character === "string" ? character : character?.key);
   return (
     <span
-      className={"badge" + (active ? " badge--active" : "")}
+      className={"badge" + (active ? " badge--active" : idleDelay != null ? " badge--idle" : "")}
       style={{
         "--badge-color": c.color,
         "--badge-ink": c.ink,
         width: size,
         height: size,
         fontSize: size * 0.44,
+        animationDelay: idleDelay != null ? `${idleDelay}s` : undefined,
       }}
       title={c.name}
     >
