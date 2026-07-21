@@ -9,9 +9,7 @@ const PIPS = {
   6: [0, 2, 3, 5, 6, 8],
 };
 
-// A die face with nine pip slots. While `rolling`, it shakes and flickers
-// through random faces before settling on `value`.
-export default function Dice({ value, rolling, onRoll, disabled, label }) {
+function Die({ value, rolling, onClick, disabled, small }) {
   const [face, setFace] = useState(value || 1);
 
   useEffect(() => {
@@ -24,22 +22,32 @@ export default function Dice({ value, rolling, onRoll, disabled, label }) {
   }, [rolling, value]);
 
   const pips = PIPS[face] || [];
+  return (
+    <button
+      type="button"
+      className={"die" + (rolling ? " die--rolling" : "") + (small ? " die--small" : "")}
+      onClick={onClick}
+      disabled={disabled || rolling || !onClick}
+      aria-label={onClick && !disabled ? "Roll the dice" : "Die"}
+    >
+      <span className="die__grid">
+        {Array.from({ length: 9 }, (_, i) => (
+          <span key={i} className={"die__pip" + (pips.includes(i) ? " is-on" : "")} />
+        ))}
+      </span>
+    </button>
+  );
+}
 
+// One tappable die, plus a second die that appears for a double roll.
+export default function Dice({ values, rolling, onRoll, disabled, label }) {
+  const two = values.length === 2;
   return (
     <div className="dice-area">
-      <button
-        type="button"
-        className={"die" + (rolling ? " die--rolling" : "")}
-        onClick={onRoll}
-        disabled={disabled || rolling}
-        aria-label={disabled ? "Waiting" : "Roll the dice"}
-      >
-        <span className="die__grid">
-          {Array.from({ length: 9 }, (_, i) => (
-            <span key={i} className={"die__pip" + (pips.includes(i) ? " is-on" : "")} />
-          ))}
-        </span>
-      </button>
+      <div className={"dice-row" + (two ? " dice-row--double" : "")}>
+        <Die value={values[0]} rolling={rolling} onClick={onRoll} disabled={disabled} small={two} />
+        {two && <Die value={values[1]} rolling={rolling} disabled small />}
+      </div>
       <div className="dice-area__label">{label}</div>
     </div>
   );

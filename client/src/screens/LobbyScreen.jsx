@@ -4,6 +4,7 @@ import { api } from "../api";
 import { useAuth } from "../auth";
 import { FINISH } from "../data/board";
 import { getCharacter } from "../data/characters";
+import { readLocalGame } from "../game/localGame";
 import CharacterBadge from "../components/CharacterBadge";
 import { CastleLogo } from "../components/Scenery";
 
@@ -12,8 +13,10 @@ export default function LobbyScreen() {
   const navigate = useNavigate();
   const [games, setGames] = useState(null);
   const [error, setError] = useState(null);
+  const localGame = readLocalGame();
 
   const load = () => {
+    if (!user) return;
     setError(null);
     api
       .listGames()
@@ -21,7 +24,8 @@ export default function LobbyScreen() {
       .catch((e) => setError(e.message));
   };
 
-  useEffect(load, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(load, [user]);
 
   const remove = async (id) => {
     try {
@@ -52,10 +56,18 @@ export default function LobbyScreen() {
           <CastleLogo size={30} /> Castle Dash
         </div>
         <div className="topbar__right">
-          <span className="topbar__user">Hi, {user?.username}</span>
-          <button className="btn btn--ghost" onClick={() => logout()}>
-            Log out
-          </button>
+          {user ? (
+            <>
+              <span className="topbar__user">Hi, {user.username}</span>
+              <button className="btn btn--ghost" onClick={() => logout()}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <button className="btn btn--ghost" onClick={() => navigate("/login")}>
+              Log in
+            </button>
+          )}
         </div>
       </header>
 
@@ -63,46 +75,72 @@ export default function LobbyScreen() {
         <button className="btn btn--primary btn--big" onClick={() => navigate("/setup")}>
           🎲 New Game
         </button>
+        {localGame && (
+          <button className="btn btn--big" onClick={() => navigate("/play")}>
+            ▶ Resume game
+          </button>
+        )}
       </div>
 
       <section className="card lobby__saves">
         <div className="section-head">
           <h2>Saved games</h2>
-          <button className="btn btn--ghost btn--sm" onClick={load}>
-            Refresh
-          </button>
+          {user && (
+            <button className="btn btn--ghost btn--sm" onClick={load}>
+              Refresh
+            </button>
+          )}
         </div>
 
-        {error && <p className="form-error">{error}</p>}
-        {games === null && !error && <p className="muted">Loading…</p>}
-        {games && games.length === 0 && (
-          <p className="muted">No saved games yet — start a new one above!</p>
+        {!user && (
+          <div className="lobby__login-nudge">
+            <p className="muted">
+              Play as a guest right away — an account is only needed to save your games and load
+              them later.
+            </p>
+            <button className="btn btn--primary" onClick={() => navigate("/login")}>
+              Log in / Sign up
+            </button>
+          </div>
         )}
 
-        <ul className="save-list">
-          {games?.map((game) => (
-            <li key={game.id} className="save-row">
-              <CharacterBadge character={game.player_avatar} size={44} />
-              <div className="save-row__info">
-                <strong>{getCharacter(game.player_avatar).name}</strong>
-                <span className="muted">{progress(game)}</span>
-              </div>
-              <div className="save-row__vs">
-                {[game.cpu1_avatar, game.cpu2_avatar, game.cpu3_avatar].map((a, i) => (
-                  <CharacterBadge key={i} character={a} size={26} />
-                ))}
-              </div>
-              <div className="save-row__actions">
-                <button className="btn btn--primary btn--sm" onClick={() => navigate(`/play/${game.id}`)}>
-                  Load
-                </button>
-                <button className="btn btn--danger btn--sm" onClick={() => remove(game.id)}>
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {user && (
+          <>
+            {error && <p className="form-error">{error}</p>}
+            {games === null && !error && <p className="muted">Loading…</p>}
+            {games && games.length === 0 && (
+              <p className="muted">No saved games yet — start a new one above!</p>
+            )}
+
+            <ul className="save-list">
+              {games?.map((game) => (
+                <li key={game.id} className="save-row">
+                  <CharacterBadge character={game.player_avatar} size={44} />
+                  <div className="save-row__info">
+                    <strong>{getCharacter(game.player_avatar).name}</strong>
+                    <span className="muted">{progress(game)}</span>
+                  </div>
+                  <div className="save-row__vs">
+                    {[game.cpu1_avatar, game.cpu2_avatar, game.cpu3_avatar].map((a, i) => (
+                      <CharacterBadge key={i} character={a} size={26} />
+                    ))}
+                  </div>
+                  <div className="save-row__actions">
+                    <button
+                      className="btn btn--primary btn--sm"
+                      onClick={() => navigate(`/play/${game.id}`)}
+                    >
+                      Load
+                    </button>
+                    <button className="btn btn--danger btn--sm" onClick={() => remove(game.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
     </div>
   );

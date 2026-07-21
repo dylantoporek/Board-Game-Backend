@@ -11,14 +11,16 @@ Postgres database. A fresh **React + Vite** frontend lives in `client/` and
 builds into `public/`, which is served from the same deployment — so one Vercel
 project runs the whole app (frontend + API).
 
-The game is a race to the castle: log in, pick one of eight original
-pixel-art characters, and roll the dice against three CPU rivals on a
-procedurally drawn board (no static board image). Star tiles award coins;
-? boxes are a gamble — bonus coins, a leap forward, a slip backward, or
-lost coins. Coins are a second path to victory: hold 5+ more coins than
-the racer directly ahead of you and you steal their leaderboard spot,
-on the live standings and the final podium alike. Games save to and load
-from the API.
+The game is a race to the castle: pick one of eight original pixel-art
+characters and roll the dice against three CPU rivals on a procedurally
+drawn snaking board (no static board image). Tokens walk the trail space
+by space. Star tiles award coins; ? boxes are a gamble — bonus coins, a
+leap forward, a slip backward, or lost coins. Spend 10 coins on your turn
+to roll two dice and move the sum (CPUs will too).
+
+No account is needed to play — anyone can start a game as a guest. Logging
+in is only for saving games to the API and loading them later; a guest's
+in-progress game also survives reloads via session storage.
 
 ## Architecture
 

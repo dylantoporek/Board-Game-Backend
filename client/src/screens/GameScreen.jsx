@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
+import { useAuth } from "../auth";
 import { FINISH } from "../data/board";
 import { getCharacter } from "../data/characters";
 import { useGameEngine } from "../hooks/useGameEngine";
-import { rankPlayers, OVERTAKE_MARGIN } from "../game/engine";
+import { rankPlayers, DOUBLE_ROLL_COST } from "../game/engine";
+import { readLocalGame, writeLocalGame } from "../game/localGame";
 import { sound } from "../game/sound";
 import Board from "../components/Board";
 import Dice from "../components/Dice";
@@ -15,8 +17,16 @@ import { CastleLogo } from "../components/Scenery";
 const positionsOf = (players) =>
   players.reduce((acc, p) => ({ ...acc, [`${p.id}_position`]: p.position }), {});
 
-function ActiveGame({ game }) {
+const avatarsOf = (game) => ({
+  player_avatar: game.player_avatar,
+  cpu1_avatar: game.cpu1_avatar,
+  cpu2_avatar: game.cpu2_avatar,
+  cpu3_avatar: game.cpu3_avatar,
+});
+
+function ActiveGame({ game, serverId }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const config = {
     characters: {
       player: game.player_avatar,
@@ -37,47 +47,47 @@ function ActiveGame({ game }) {
   const [toast, setToast] = useState(null);
   const lastSavedRound = useRef(state.round);
   const toastId = useRef(0);
+  const gameIdRef = useRef(serverId || null);
 
-  // Dice rattle when a roll starts.
+  const showToast = (text, tone) => {
+    const id = ++toastId.current;
+    setToast({ id, text, tone });
+    setTimeout(() => setToast((cur) => (cur && cur.id === id ? null : cur)), 1400);
+  };
+
+  // Dice rattle when a roll starts; announce a double-down.
   useEffect(() => {
-    if (state.phase === "rolling") sound.roll();
+    if (state.phase !== "rolling") return;
+    sound.roll();
+    if (state.dice.length === 2) {
+      const name = getCharacter(activePlayer?.character).name;
+      showToast(`${name} doubles down! −${DOUBLE_ROLL_COST} 🪙`, "move");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.phase]);
 
-  // Sounds + a floating toast after each move: coin gains, coin losses, and
-  // the ? box's forced moves each get their own treatment.
+  // Sounds + a floating toast when a tile resolves.
   useEffect(() => {
     const ev = state.lastEvent;
-    if (!ev) return undefined;
+    if (!ev) return;
     const name = getCharacter(state.players.find((p) => p.id === ev.playerId)?.character).name;
-    let text = null;
-    let tone = "coin";
     if (ev.finished) {
       sound.land();
     } else if (ev.coinDelta > 0) {
       sound.coin();
-      text = `${name} +${ev.coinDelta}`;
+      showToast(`${name} +${ev.coinDelta}`, "coin");
     } else if (ev.coinDelta < 0) {
       sound.bad();
-      text = `${name} ${ev.coinDelta}`;
-      tone = "bad";
+      showToast(`${name} ${ev.coinDelta}`, "bad");
     } else if (ev.moveDelta > 0) {
       sound.coin();
-      text = `${name} leaps ${ev.moveDelta} ahead!`;
-      tone = "move";
+      showToast(`${name} leaps ${ev.moveDelta} ahead!`, "move");
     } else if (ev.moveDelta < 0) {
       sound.bad();
-      text = `${name} slips back ${-ev.moveDelta}!`;
-      tone = "bad";
+      showToast(`${name} slips back ${-ev.moveDelta}!`, "bad");
     } else {
       sound.land();
     }
-    if (text) {
-      const id = ++toastId.current;
-      setToast({ id, text, tone });
-      const t = setTimeout(() => setToast((cur) => (cur && cur.id === id ? null : cur)), 1400);
-      return () => clearTimeout(t);
-    }
-    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.lastEvent]);
 
@@ -86,10 +96,19 @@ function ActiveGame({ game }) {
     if (state.phase === "over") sound.win();
   }, [state.phase]);
 
+  // Persist: the local copy always; the API only for logged-in players.
   const save = async () => {
+    const positions = positionsOf(state.players);
+    if (!gameIdRef.current) writeLocalGame({ ...avatarsOf(game), ...positions });
+    if (!user) return;
     setSaveState("saving");
     try {
-      await api.updateGame(game.id, positionsOf(state.players));
+      if (gameIdRef.current) {
+        await api.updateGame(gameIdRef.current, positions);
+      } else {
+        const created = await api.createGame({ ...avatarsOf(game), ...positions });
+        gameIdRef.current = created.id;
+      }
       setSaveState("saved");
     } catch {
       setSaveState("error");
@@ -112,6 +131,9 @@ function ActiveGame({ game }) {
 
   const activeName = getCharacter(activePlayer?.character).name;
   const rolling = state.phase === "rolling";
+  const moving = state.phase === "moving";
+  const human = state.players.find((p) => p.id === "player");
+  const canDouble = canRollNow && human && human.coins >= DOUBLE_ROLL_COST;
 
   return (
     <div className="screen game">
@@ -134,9 +156,20 @@ function ActiveGame({ game }) {
           >
             {muted ? "🔇" : "🔊"}
           </button>
-          <button className="btn btn--ghost" onClick={saveAndExit}>
-            Save &amp; exit
-          </button>
+          {user ? (
+            <button className="btn btn--ghost" onClick={saveAndExit}>
+              Save &amp; exit
+            </button>
+          ) : (
+            <>
+              <button className="btn btn--ghost" onClick={() => navigate("/")}>
+                Exit
+              </button>
+              <button className="btn btn--ghost" onClick={() => navigate("/login?next=/play")}>
+                Log in to save
+              </button>
+            </>
+          )}
         </div>
       </header>
 
@@ -180,29 +213,48 @@ function ActiveGame({ game }) {
               ))}
             </ul>
             <p className="standings__hint">
-              Lead the racer ahead by {OVERTAKE_MARGIN}+ 🪙 to steal their spot. ? boxes are a
-              gamble!
+              ⭐ pays 5 🪙 and ? boxes are a gamble. {DOUBLE_ROLL_COST} 🪙 buys a double roll!
             </p>
           </div>
 
           {state.phase !== "over" && (
             <div className="card turn-panel">
               <p className="turn-panel__who">
-                {canRollNow ? "Your turn!" : `${activeName} is ${rolling ? "rolling" : "up"}…`}
+                {canRollNow
+                  ? "Your turn!"
+                  : moving
+                  ? `${activeName} is on the move…`
+                  : `${activeName} is ${rolling ? "rolling" : "up"}…`}
               </p>
               <Dice
-                value={state.lastRoll}
+                values={state.dice.length ? state.dice : [state.lastRoll || 1]}
                 rolling={rolling}
-                onRoll={roll}
+                onRoll={() => roll(false)}
                 disabled={!canRollNow}
                 label={
                   canRollNow
                     ? "Tap to roll"
                     : rolling
                     ? "Rolling…"
+                    : moving
+                    ? "Moving…"
                     : `${activeName}'s turn`
                 }
               />
+              {canRollNow && (
+                <button
+                  className="btn btn--gold btn--sm turn-panel__double"
+                  onClick={() => roll(true)}
+                  disabled={!canDouble}
+                  title={
+                    canDouble
+                      ? "Roll two dice and move the sum"
+                      : `Needs ${DOUBLE_ROLL_COST} coins`
+                  }
+                >
+                  🎲🎲 Double roll −{DOUBLE_ROLL_COST} 🪙
+                </button>
+              )}
             </div>
           )}
         </aside>
@@ -229,13 +281,21 @@ export default function GameScreen() {
   const [game, setGame] = useState(null);
   const [error, setError] = useState(null);
 
+  // No id => a local (guest or unsaved) game from sessionStorage.
+  const localGame = !id ? readLocalGame() : null;
+
   useEffect(() => {
+    if (!id) return;
     api
       .getGame(id)
       .then(setGame)
       .catch((e) => setError(e.message));
   }, [id]);
 
+  if (!id) {
+    if (!localGame) return <Navigate to="/setup" replace />;
+    return <ActiveGame game={localGame} serverId={null} />;
+  }
   if (error) {
     return (
       <div className="screen center">
@@ -249,5 +309,5 @@ export default function GameScreen() {
     );
   }
   if (!game) return <div className="screen center muted">Loading game…</div>;
-  return <ActiveGame game={game} />;
+  return <ActiveGame game={game} serverId={game.id} />;
 }
