@@ -5,6 +5,8 @@ import LobbyScreen from "./screens/LobbyScreen";
 import SetupScreen from "./screens/SetupScreen";
 import GameScreen from "./screens/GameScreen";
 
+// Only loading a *saved* game requires an account; everything else — playing
+// included — is open to guests.
 function Protected({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="screen center muted">Loading…</div>;
@@ -13,29 +15,12 @@ function Protected({ children }) {
 }
 
 function Routing() {
-  const { user, loading } = useAuth();
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={loading ? null : user ? <Navigate to="/" replace /> : <AuthScreen />}
-      />
-      <Route
-        path="/"
-        element={
-          <Protected>
-            <LobbyScreen />
-          </Protected>
-        }
-      />
-      <Route
-        path="/setup"
-        element={
-          <Protected>
-            <SetupScreen />
-          </Protected>
-        }
-      />
+      <Route path="/login" element={<AuthScreen />} />
+      <Route path="/" element={<LobbyScreen />} />
+      <Route path="/setup" element={<SetupScreen />} />
+      <Route path="/play" element={<GameScreen />} />
       <Route
         path="/play/:id"
         element={

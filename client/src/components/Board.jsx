@@ -28,9 +28,19 @@ const FIREFLIES = Array.from({ length: 7 }, (_, i) => ({
   dur: `${(4 + (i % 3)).toFixed(1)}s`,
 }));
 
+// Where the trail turns between rows: consecutive spaces on different rows
+// share a column, and a short connector path is drawn in the gap row between
+// them so the board reads as one winding snake.
+const CONNECTORS = SPACES.slice(1).flatMap((space, i) => {
+  const prev = SPACES[i];
+  if (prev.row === space.row) return [];
+  return [{ col: space.col, gapAbove: Math.min(prev.row, space.row) }];
+});
+
 // Renders the diorama (sky, scenery, castle goal) and the climbing trail, and
 // drops each player's token on its space. The castle sits above the top-center
-// finish tile, so the final step walks the token into the gate.
+// finish tile, so the final step walks the token into the gate. Path rows sit
+// on alternating grid rows with connector gaps between them.
 export default function Board({ players, activeId }) {
   return (
     <div className="board-scene" style={{ "--cols": COLUMNS, "--rows": ROWS }}>
@@ -54,7 +64,15 @@ export default function Board({ players, activeId }) {
         className="board"
         role="img"
         aria-label="Game board: a trail climbing from the bottom-left up to the castle"
+        style={{ gridTemplateRows: `repeat(${ROWS * 2 - 1}, auto)` }}
       >
+        {CONNECTORS.map((c, i) => (
+          <div
+            key={`link-${i}`}
+            className="path-link"
+            style={{ gridColumn: c.col + 1, gridRow: c.gapAbove * 2 + 2 }}
+          />
+        ))}
         {SPACES.map((space) => {
           const here = players.filter((p) => p.position === space.index);
           const Icon = TILE_ICON[space.type];
@@ -62,7 +80,7 @@ export default function Board({ players, activeId }) {
             <div
               key={space.index}
               className={`tile tile--${space.type}`}
-              style={{ gridColumn: space.col + 1, gridRow: space.row + 1 }}
+              style={{ gridColumn: space.col + 1, gridRow: space.row * 2 + 1 }}
             >
               <span className="tile__num">{space.index}</span>
               {Icon && (

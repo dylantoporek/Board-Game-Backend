@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { CastleLogo } from "../components/Scenery";
 
 export default function AuthScreen() {
   const { login, signup } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = params.get("next") || "/";
   const [mode, setMode] = useState("login"); // login | signup
   const [form, setForm] = useState({ username: "", password: "", password_confirmation: "" });
   const [error, setError] = useState(null);
@@ -24,7 +26,7 @@ export default function AuthScreen() {
       } else {
         await login({ username: form.username, password: form.password });
       }
-      navigate("/", { replace: true });
+      navigate(next, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -95,6 +97,10 @@ export default function AuthScreen() {
           {busy ? "…" : isSignup ? "Create account" : "Log in"}
         </button>
       </form>
+
+      <button className="btn btn--ghost" onClick={() => navigate("/")}>
+        Continue without an account
+      </button>
     </div>
   );
 }
