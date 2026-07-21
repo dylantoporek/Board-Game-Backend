@@ -9,6 +9,7 @@ import Board from "../components/Board";
 import Dice from "../components/Dice";
 import Results from "../components/Results";
 import CharacterBadge from "../components/CharacterBadge";
+import { CastleLogo } from "../components/Scenery";
 
 const positionsOf = (players) =>
   players.reduce((acc, p) => ({ ...acc, [`${p.id}_position`]: p.position }), {});
@@ -97,7 +98,7 @@ function ActiveGame({ game }) {
     <div className="screen game">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="logo__star">★</span> Castle Dash
+          <CastleLogo size={30} /> Castle Dash
         </div>
         <div className="topbar__right">
           <span className={"save-pill save-pill--" + saveState}>

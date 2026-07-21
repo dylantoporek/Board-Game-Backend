@@ -40,7 +40,7 @@ export default function Board({ players, activeId }) {
         <Cloud className="cloud cloud--2" />
         <Cloud className="cloud cloud--3" />
         <div className="scene-hill" />
-        <Castle className="scene-castle" hill={false} />
+        <Castle className="scene-castle" width={132} />
         <Tree className="scene-tree scene-tree--l" />
         <Tree className="scene-tree scene-tree--r" />
         <Bush className="scene-bush scene-bush--l" />

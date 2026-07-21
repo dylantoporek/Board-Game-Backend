@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { ROSTER, randomCharacters, getCharacter } from "../data/characters";
 import CharacterBadge from "../components/CharacterBadge";
+import { CastleLogo } from "../components/Scenery";
 
 export default function SetupScreen() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function SetupScreen() {
     <div className="screen setup">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="logo__star">★</span> Choose your character
+          <CastleLogo size={30} /> Choose your character
         </div>
         <button className="btn btn--ghost" onClick={() => navigate("/")}>
           Cancel

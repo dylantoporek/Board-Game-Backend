@@ -5,6 +5,7 @@ import { useAuth } from "../auth";
 import { FINISH } from "../data/board";
 import { getCharacter } from "../data/characters";
 import CharacterBadge from "../components/CharacterBadge";
+import { CastleLogo } from "../components/Scenery";
 
 export default function LobbyScreen() {
   const { user, logout } = useAuth();
@@ -48,7 +49,7 @@ export default function LobbyScreen() {
     <div className="screen lobby">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="logo__star">★</span> Castle Dash
+          <CastleLogo size={30} /> Castle Dash
         </div>
         <div className="topbar__right">
           <span className="topbar__user">Hi, {user?.username}</span>
