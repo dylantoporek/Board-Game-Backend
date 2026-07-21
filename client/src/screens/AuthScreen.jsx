@@ -36,7 +36,7 @@ export default function AuthScreen() {
       <div className="auth__hero">
         <div className="logo">
           <span className="logo__star">★</span>
-          <h1 className="logo__title">Nintendo Land</h1>
+          <h1 className="logo__title">Castle Dash</h1>
           <p className="logo__tag">Race to the castle!</p>
         </div>
       </div>

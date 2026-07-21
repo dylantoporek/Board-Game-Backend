@@ -6,7 +6,7 @@ import CharacterBadge from "../components/CharacterBadge";
 
 export default function SetupScreen() {
   const navigate = useNavigate();
-  const [picked, setPicked] = useState("mario");
+  const [picked, setPicked] = useState("ember");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
@@ -72,7 +72,7 @@ export default function SetupScreen() {
           <span className="muted">Against 3 CPU rivals</span>
           <div className="setup__rivals">
             {cpus.map((k) => (
-              <CharacterBadge key={k} character={k} size={34} showEmoji={false} />
+              <CharacterBadge key={k} character={k} size={34} />
             ))}
           </div>
         </div>

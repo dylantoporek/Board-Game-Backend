@@ -77,7 +77,7 @@ export default function Board({ players, activeId }) {
                       key={p.id}
                       character={p.character}
                       size={here.length > 2 ? 24 : 30}
-                      showEmoji={false}
+                     
                       active={p.id === activeId}
                       idleDelay={p.id === activeId ? 0 : i * 0.25 + 0.1}
                     />
