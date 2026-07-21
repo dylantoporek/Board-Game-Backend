@@ -1,14 +1,12 @@
-import { getCharacter } from "../data/characters";
+import { getCharacter, getSprite } from "../data/characters";
+import PixelSprite from "./PixelSprite";
 
-// A round character token: colored disc, initial, and a little emoji accent.
-export default function CharacterBadge({
-  character,
-  size = 48,
-  showEmoji = true,
-  active = false,
-  idleDelay = null,
-}) {
-  const c = getCharacter(typeof character === "string" ? character : character?.key);
+// A round character token: team-colored disc with the character's pixel
+// sprite on top. `active` hops, `idleDelay` gives resting tokens a soft bob.
+export default function CharacterBadge({ character, size = 48, active = false, idleDelay = null }) {
+  const key = typeof character === "string" ? character : character?.key;
+  const c = getCharacter(key);
+  const sprite = getSprite(key);
   return (
     <span
       className={"badge" + (active ? " badge--active" : idleDelay != null ? " badge--idle" : "")}
@@ -17,17 +15,11 @@ export default function CharacterBadge({
         "--badge-ink": c.ink,
         width: size,
         height: size,
-        fontSize: size * 0.44,
         animationDelay: idleDelay != null ? `${idleDelay}s` : undefined,
       }}
       title={c.name}
     >
-      <span className="badge__initial">{c.initial}</span>
-      {showEmoji && (
-        <span className="badge__emoji" style={{ fontSize: size * 0.34 }}>
-          {c.emoji}
-        </span>
-      )}
+      <PixelSprite sprite={sprite} size={Math.round(size * 0.78)} className="badge__sprite" />
     </span>
   );
 }

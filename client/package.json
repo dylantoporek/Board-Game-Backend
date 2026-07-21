@@ -1,8 +1,8 @@
 {
-  "name": "nintendo-land-client",
+  "name": "castle-dash-client",
   "private": true,
   "version": "2.0.0",
-  "description": "Nintendo Land board game frontend (React + Vite). Builds to ../public.",
+  "description": "Castle Dash board game frontend (React + Vite). Builds to ../public.",
   "type": "module",
   "scripts": {
     "dev": "vite",

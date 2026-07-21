@@ -1,8 +1,9 @@
-# Board Game Backend
+# Castle Dash
 
-The API for the Nintendo Land board game app: user signup/login with
-bcrypt-protected passwords, plus per-user saved games (player and CPU avatars
-and board positions) that can be created, loaded, updated, and deleted.
+The full-stack home of **Castle Dash**, a party-style board game: user
+signup/login with bcrypt-protected passwords, plus per-user saved games
+(player and CPU avatars and board positions) that can be created, loaded,
+updated, and deleted.
 
 Originally a Rails 7 + Heroku app, the backend is now a **Node/Express API that
 deploys to Vercel for free**, backed by a free [Neon](https://neon.tech)
@@ -10,9 +11,10 @@ Postgres database. A fresh **React + Vite** frontend lives in `client/` and
 builds into `public/`, which is served from the same deployment — so one Vercel
 project runs the whole app (frontend + API).
 
-The frontend is a Mario Party-style race to the castle: log in, pick a
-character, and roll the dice against three CPU rivals on a procedurally drawn
-board (no static board image). Games save to and load from the API.
+The game is a race to the castle: log in, pick one of eight original
+pixel-art characters, and roll the dice against three CPU rivals on a
+procedurally drawn board (no static board image). Landing on star and ?
+tiles earns coins, and games save to and load from the API.
 
 ## Architecture
 
@@ -118,18 +120,24 @@ A game serializes as:
 ```json
 {
   "id": 1,
-  "player_avatar": "mario",
+  "player_avatar": "ember",
   "player_position": 0,
-  "cpu1_avatar": "luigi",
+  "cpu1_avatar": "sprout",
   "cpu1_position": 0,
-  "cpu2_avatar": "peach",
+  "cpu2_avatar": "blossom",
   "cpu2_position": 0,
-  "cpu3_avatar": "toad",
+  "cpu3_avatar": "dot",
   "cpu3_position": 0,
   "user": { "id": 1, "username": "dylan" }
 }
 ```
 
-## Disclaimer
+Avatar keys are the character keys from `client/src/data/characters.js`
+(`ember`, `sprout`, `blossom`, `dot`, `chomp`, `drake`, `bolt`, `wisp`).
+Saves from the previous version used different keys; the client maps them
+onto the current cast automatically.
 
-I do not own any images used in this application or the rights to those images.
+## Art
+
+All artwork — the pixel-art characters, board, scenery, and icons — is
+original SVG drawn for this project. No borrowed or licensed images are used.

@@ -2,7 +2,7 @@
 // files to ship. Muting is remembered in localStorage.
 
 let ctx = null;
-let muted = typeof localStorage !== "undefined" && localStorage.getItem("nl_muted") === "1";
+let muted = typeof localStorage !== "undefined" && localStorage.getItem("castledash_muted") === "1";
 
 function audio() {
   if (!ctx) {
@@ -35,7 +35,7 @@ export const sound = {
   isMuted: () => muted,
   toggle() {
     muted = !muted;
-    if (typeof localStorage !== "undefined") localStorage.setItem("nl_muted", muted ? "1" : "0");
+    if (typeof localStorage !== "undefined") localStorage.setItem("castledash_muted", muted ? "1" : "0");
     if (!muted) beep({ freq: 660, dur: 0.1, type: "triangle", gain: 0.05 });
     return muted;
   },

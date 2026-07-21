@@ -48,7 +48,7 @@ export default function LobbyScreen() {
     <div className="screen lobby">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="logo__star">★</span> Nintendo Land
+          <span className="logo__star">★</span> Castle Dash
         </div>
         <div className="topbar__right">
           <span className="topbar__user">Hi, {user?.username}</span>
@@ -88,7 +88,7 @@ export default function LobbyScreen() {
               </div>
               <div className="save-row__vs">
                 {[game.cpu1_avatar, game.cpu2_avatar, game.cpu3_avatar].map((a, i) => (
-                  <CharacterBadge key={i} character={a} size={26} showEmoji={false} />
+                  <CharacterBadge key={i} character={a} size={26} />
                 ))}
               </div>
               <div className="save-row__actions">

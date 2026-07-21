@@ -97,7 +97,7 @@ function ActiveGame({ game }) {
     <div className="screen game">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="logo__star">★</span> Nintendo Land
+          <span className="logo__star">★</span> Castle Dash
         </div>
         <div className="topbar__right">
           <span className={"save-pill save-pill--" + saveState}>
@@ -145,7 +145,7 @@ function ActiveGame({ game }) {
                       (p.id === "player" ? " is-you" : "")
                     }
                   >
-                    <CharacterBadge character={p.character} size={30} showEmoji={false} />
+                    <CharacterBadge character={p.character} size={30} />
                     <span className="standings__name">
                       {getCharacter(p.character).name}
                       {p.id === "player" && <em> (You)</em>}

@@ -1,5 +1,5 @@
 /* ============================================================
-   Nintendo Land — Mario Party themed UI
+   Castle Dash — party board game UI
    ============================================================ */
 
 :root {
@@ -371,19 +371,14 @@ h3 {
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--badge-color);
-  color: var(--badge-ink);
-  font-family: "Baloo 2", sans-serif;
-  font-weight: 800;
-  border: 3px solid rgba(255, 255, 255, 0.85);
+  background: #fffdf3;
+  border: 3px solid var(--badge-color);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
   flex: none;
 }
-.badge__emoji {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+.badge__sprite {
+  display: block;
+  image-rendering: pixelated;
 }
 .badge--active {
   animation: hop 0.6s ease-in-out infinite;
