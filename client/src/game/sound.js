@@ -51,6 +51,10 @@ export const sound = {
     beep({ freq: 988, dur: 0.07, type: "square", gain: 0.05 });
     beep({ freq: 1319, dur: 0.13, type: "square", gain: 0.05, when: 0.07 });
   },
+  bad() {
+    beep({ freq: 330, slideTo: 150, dur: 0.22, type: "sawtooth", gain: 0.045 });
+    beep({ freq: 110, dur: 0.12, type: "square", gain: 0.04, when: 0.2 });
+  },
   win() {
     [523, 659, 784, 1047].forEach((f, i) =>
       beep({ freq: f, dur: 0.18, type: "square", gain: 0.06, when: i * 0.13 })

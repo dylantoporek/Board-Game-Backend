@@ -977,6 +977,14 @@ h3 {
   color: #a9791b;
   font-weight: 700;
 }
+.standings__hint {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 2px solid #cdb98c;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
 
 /* floating "+N" coin toast over the board */
 .coin-toast {
@@ -995,6 +1003,16 @@ h3 {
   animation: toastpop 1.4s ease forwards;
   pointer-events: none;
   white-space: nowrap;
+}
+.move-chip {
+  font-weight: 700;
+  color: #ffe066;
+}
+.coin-toast--bad {
+  border-color: rgba(240, 117, 104, 0.7);
+}
+.coin-toast--bad .move-chip {
+  color: #ff9a8a;
 }
 @keyframes toastpop {
   0% {

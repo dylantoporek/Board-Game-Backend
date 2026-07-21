@@ -1,28 +1,32 @@
 import { getCharacter } from "../data/characters";
+import { rankPlayers } from "../game/engine";
 import CharacterBadge from "./CharacterBadge";
 import Confetti from "./Confetti";
 
 const MEDALS = { 1: "🥇", 2: "🥈", 3: "🥉", 4: "🎗️" };
 const PLACE_LABEL = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th" };
 
-// Final podium, ordered by finishing place.
+// Final podium: arrival order at the castle, adjusted by the coin-overtake
+// rule — a racer holding enough coins steals the spot ahead of them.
 export default function Results({ players, onPlayAgain, onExit }) {
-  const ranked = [...players].sort((a, b) => (a.place || 99) - (b.place || 99));
+  const ranked = rankPlayers(players);
   const winner = ranked[0];
   const youWon = winner && winner.id === "player";
+  const wonByCoins = winner.place !== 1;
 
   return (
     <div className="results">
       {youWon && <Confetti />}
       <h2 className="results__title">{youWon ? "You win! 🎉" : "Race over!"}</h2>
       <p className="results__sub">
-        {getCharacter(winner.character).name} reached the castle first.
+        {getCharacter(winner.character).name}{" "}
+        {wonByCoins ? "bought the crown with a heavy coin purse!" : "reached the castle first."}
       </p>
       <ol className="podium">
-        {ranked.map((p) => (
+        {ranked.map((p, rank) => (
           <li key={p.id} className={"podium__row" + (p.id === "player" ? " is-you" : "")}>
             <span className="podium__place">
-              {MEDALS[p.place]} {PLACE_LABEL[p.place]}
+              {MEDALS[rank + 1]} {PLACE_LABEL[rank + 1]}
             </span>
             <CharacterBadge character={p.character} size={40} />
             <span className="podium__name">

@@ -1,6 +1,9 @@
-import { FINISH, SPACES, TILE_REWARD } from "../data/board";
+import { FINISH, SPACES } from "../data/board";
 
 export const PLAYER_IDS = ["player", "cpu1", "cpu2", "cpu3"];
+
+// Coins needed over the racer directly ahead of you to steal their spot.
+export const OVERTAKE_MARGIN = 5;
 
 // Build the initial engine state from the four characters and (optionally)
 // saved positions when resuming a game.
@@ -25,7 +28,8 @@ export function createInitialState({ characters, positions = {} }) {
     turnIndex: firstUnfinished(players, 0),
     phase: allFinished(players) ? "over" : "ready", // ready | rolling | over
     lastRoll: null,
-    lastEvent: null, // { playerId, coins, finished } — for toasts + sound
+    luck: 0.5, // random draw carried with the roll; resolves ? tiles
+    lastEvent: null, // { playerId, coinDelta, moveDelta, finished }
     round: 1,
   };
 }
@@ -52,19 +56,70 @@ function assignPlacesForFinished(players) {
     });
 }
 
+// Resolve a ? tile from the luck draw. Half the outcomes are bad — the box
+// is a gamble, not a gift.
+function bonusOutcome(luck) {
+  if (luck < 0.35) return { coinDelta: 3, moveDelta: 0 };
+  if (luck < 0.55) return { coinDelta: 0, moveDelta: 2 };
+  if (luck < 0.85) return { coinDelta: 0, moveDelta: -3 };
+  return { coinDelta: -2, moveDelta: 0 };
+}
+
+// Leaderboard order with the coin-overtake rule: base order is finishers by
+// place then racers by board position, but anyone holding OVERTAKE_MARGIN
+// more coins than the racer directly ahead of them steals that spot (bubble
+// upward until stable). Finishers can be reshuffled among themselves the same
+// way, so a rich runner-up can take the crown — but an unfinished racer can
+// never jump someone who already reached the castle.
+export function rankPlayers(players) {
+  const ranked = [...players].sort((a, b) => {
+    if (a.finished && b.finished) return a.place - b.place;
+    if (a.finished !== b.finished) return a.finished ? -1 : 1;
+    return b.position - a.position;
+  });
+  for (let pass = 0; pass < players.length; pass++) {
+    let moved = false;
+    for (let i = ranked.length - 1; i > 0; i--) {
+      const above = ranked[i - 1];
+      const below = ranked[i];
+      if (above.finished === below.finished && below.coins >= above.coins + OVERTAKE_MARGIN) {
+        [ranked[i - 1], ranked[i]] = [below, above];
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return ranked;
+}
+
 export function reducer(state, action) {
   switch (action.type) {
     case "START_ROLL": {
       if (state.phase !== "ready") return state;
-      return { ...state, phase: "rolling", lastRoll: action.value };
+      return { ...state, phase: "rolling", lastRoll: action.value, luck: action.luck ?? 0.5 };
     }
 
     case "APPLY_ROLL": {
       if (state.phase !== "rolling") return state;
       const players = state.players.map((p) => ({ ...p }));
       const active = players[state.turnIndex];
-      const target = Math.min(active.position + state.lastRoll, FINISH);
+      let target = Math.min(active.position + state.lastRoll, FINISH);
+
+      // Resolve the tile landed on (the finish itself has no effect).
+      let coinDelta = 0;
+      let moveDelta = 0;
+      if (target < FINISH) {
+        const type = SPACES[target]?.type;
+        if (type === "star") {
+          coinDelta = 5;
+        } else if (type === "bonus") {
+          ({ coinDelta, moveDelta } = bonusOutcome(state.luck));
+        }
+      }
+
+      target = Math.max(0, Math.min(target + moveDelta, FINISH));
       active.position = target;
+      active.coins = Math.max(0, active.coins + coinDelta);
 
       let justFinished = false;
       if (target >= FINISH && !active.finished) {
@@ -75,10 +130,7 @@ export function reducer(state, action) {
         justFinished = true;
       }
 
-      // Coins for landing on a decorated tile (not the finish).
-      const reward = justFinished ? 0 : TILE_REWARD[SPACES[target]?.type] || 0;
-      active.coins += reward;
-      const lastEvent = { playerId: active.id, coins: reward, finished: justFinished };
+      const lastEvent = { playerId: active.id, coinDelta, moveDelta, finished: justFinished };
 
       if (allFinished(players)) {
         return { ...state, players, phase: "over", lastEvent };

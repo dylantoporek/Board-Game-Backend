@@ -4,6 +4,7 @@ import { api } from "../api";
 import { FINISH } from "../data/board";
 import { getCharacter } from "../data/characters";
 import { useGameEngine } from "../hooks/useGameEngine";
+import { rankPlayers, OVERTAKE_MARGIN } from "../game/engine";
 import { sound } from "../game/sound";
 import Board from "../components/Board";
 import Dice from "../components/Dice";
@@ -42,21 +43,39 @@ function ActiveGame({ game }) {
     if (state.phase === "rolling") sound.roll();
   }, [state.phase]);
 
-  // Step / coin sounds + a floating "+N coins" toast after each move.
+  // Sounds + a floating toast after each move: coin gains, coin losses, and
+  // the ? box's forced moves each get their own treatment.
   useEffect(() => {
     const ev = state.lastEvent;
     if (!ev) return undefined;
+    const name = getCharacter(state.players.find((p) => p.id === ev.playerId)?.character).name;
+    let text = null;
+    let tone = "coin";
     if (ev.finished) {
       sound.land();
-    } else if (ev.coins > 0) {
+    } else if (ev.coinDelta > 0) {
       sound.coin();
-      const name = getCharacter(state.players.find((p) => p.id === ev.playerId)?.character).name;
-      const id = ++toastId.current;
-      setToast({ id, text: `${name} +${ev.coins}` });
-      const t = setTimeout(() => setToast((cur) => (cur && cur.id === id ? null : cur)), 1400);
-      return () => clearTimeout(t);
+      text = `${name} +${ev.coinDelta}`;
+    } else if (ev.coinDelta < 0) {
+      sound.bad();
+      text = `${name} ${ev.coinDelta}`;
+      tone = "bad";
+    } else if (ev.moveDelta > 0) {
+      sound.coin();
+      text = `${name} leaps ${ev.moveDelta} ahead!`;
+      tone = "move";
+    } else if (ev.moveDelta < 0) {
+      sound.bad();
+      text = `${name} slips back ${-ev.moveDelta}!`;
+      tone = "bad";
     } else {
       sound.land();
+    }
+    if (text) {
+      const id = ++toastId.current;
+      setToast({ id, text, tone });
+      const t = setTimeout(() => setToast((cur) => (cur && cur.id === id ? null : cur)), 1400);
+      return () => clearTimeout(t);
     }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,8 +144,12 @@ function ActiveGame({ game }) {
         <div className="game__board">
           <Board players={state.players} activeId={activePlayer?.id} />
           {toast && (
-            <div className="coin-toast" key={toast.id}>
-              <span className="coin-chip">{toast.text}</span>
+            <div className={"coin-toast coin-toast--" + toast.tone} key={toast.id}>
+              {toast.tone === "coin" ? (
+                <span className="coin-chip">{toast.text}</span>
+              ) : (
+                <span className="move-chip">{toast.text}</span>
+              )}
             </div>
           )}
         </div>
@@ -135,29 +158,31 @@ function ActiveGame({ game }) {
           <div className="card standings">
             <h3>Standings</h3>
             <ul>
-              {[...state.players]
-                .sort((a, b) => b.position - a.position)
-                .map((p) => (
-                  <li
-                    key={p.id}
-                    className={
-                      "standings__row" +
-                      (p.id === activePlayer?.id ? " is-active" : "") +
-                      (p.id === "player" ? " is-you" : "")
-                    }
-                  >
-                    <CharacterBadge character={p.character} size={30} />
-                    <span className="standings__name">
-                      {getCharacter(p.character).name}
-                      {p.id === "player" && <em> (You)</em>}
-                      {p.coins > 0 && <span className="standings__coins"> · {p.coins} 🪙</span>}
-                    </span>
-                    <span className="standings__pos">
-                      {p.finished ? `🏁 ${p.place}` : `${p.position}/${FINISH}`}
-                    </span>
-                  </li>
-                ))}
+              {rankPlayers(state.players).map((p, rank) => (
+                <li
+                  key={p.id}
+                  className={
+                    "standings__row" +
+                    (p.id === activePlayer?.id ? " is-active" : "") +
+                    (p.id === "player" ? " is-you" : "")
+                  }
+                >
+                  <CharacterBadge character={p.character} size={30} />
+                  <span className="standings__name">
+                    {getCharacter(p.character).name}
+                    {p.id === "player" && <em> (You)</em>}
+                    {p.coins > 0 && <span className="standings__coins"> · {p.coins} 🪙</span>}
+                  </span>
+                  <span className="standings__pos">
+                    {p.finished ? `🏁 ${rank + 1}` : `${p.position}/${FINISH}`}
+                  </span>
+                </li>
+              ))}
             </ul>
+            <p className="standings__hint">
+              Lead the racer ahead by {OVERTAKE_MARGIN}+ 🪙 to steal their spot. ? boxes are a
+              gamble!
+            </p>
           </div>
 
           {state.phase !== "over" && (

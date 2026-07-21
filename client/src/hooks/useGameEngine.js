@@ -12,7 +12,8 @@ export function useGameEngine(config) {
   const timers = useRef([]);
 
   const roll = useCallback(() => {
-    dispatch({ type: "START_ROLL", value: rollDie() });
+    // luck is drawn here (not in the reducer) so the reducer stays pure.
+    dispatch({ type: "START_ROLL", value: rollDie(), luck: Math.random() });
     const t = setTimeout(() => dispatch({ type: "APPLY_ROLL" }), DICE_SPIN_MS);
     timers.current.push(t);
   }, []);

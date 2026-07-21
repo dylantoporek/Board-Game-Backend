@@ -50,6 +50,3 @@ export const SPACES = PATH.map((cell, i) => ({
   col: cell.col,
   type: spaceType(i),
 }));
-
-// Coin rewards for landing on a decorated tile.
-export const TILE_REWARD = { star: 5, bonus: 3 };
