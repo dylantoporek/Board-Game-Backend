@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
+import { CastleLogo } from "../components/Scenery";
 
 export default function AuthScreen() {
   const { login, signup } = useAuth();
@@ -35,7 +36,7 @@ export default function AuthScreen() {
     <div className="screen auth">
       <div className="auth__hero">
         <div className="logo">
-          <span className="logo__star">★</span>
+          <CastleLogo className="logo__castle" size={124} />
           <h1 className="logo__title">Castle Dash</h1>
           <p className="logo__tag">Race to the castle!</p>
         </div>

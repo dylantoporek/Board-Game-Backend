@@ -1,6 +1,9 @@
 // Self-contained inline-SVG scenery so the board reads as a little living
 // diorama — no external image files to load or break.
 
+import { PixelRects } from "./PixelSprite";
+import { CASTLE } from "../data/sprites";
+
 export function Cloud({ className }) {
   return (
     <svg className={className} viewBox="0 0 120 56" width="120" height="56" aria-hidden="true">
@@ -81,34 +84,61 @@ export function Flower({ className, color = "#f27da6" }) {
   );
 }
 
-export function Castle({ className, hill = true }) {
+// The pixel castle from the Castle Dash logo, transparent background so it
+// can stand on the board's hilltop as the goal.
+export function Castle({ className, width = 150 }) {
   return (
-    <svg className={className} viewBox="0 0 160 150" width="150" height="140" aria-hidden="true">
-      {/* hill */}
-      {hill && <ellipse cx="80" cy="150" rx="95" ry="30" fill="#4aa956" />}
-      {/* towers */}
-      <g fill="#d9c7a3">
-        <rect x="26" y="60" width="26" height="82" />
-        <rect x="108" y="60" width="26" height="82" />
-        <rect x="58" y="46" width="44" height="96" />
+    <svg
+      className={className}
+      viewBox="0 0 24 20"
+      width={width}
+      height={Math.round((width * 20) / 24)}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      <PixelRects sprite={CASTLE} />
+    </svg>
+  );
+}
+
+// The framed logo: the pixel castle at night — dark sky, stars, moon, grass —
+// matching the app's brand artwork. Used on the auth hero (and mirrored by
+// public/favicon.svg for the browser tab).
+export function CastleLogo({ className, size = 128 }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      width={size}
+      height={size}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      <defs>
+        <clipPath id="logo-frame">
+          <rect width="32" height="32" rx="4" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#logo-frame)">
+        <rect width="32" height="32" fill="#131c2b" />
+        {/* stars */}
+        {[
+          [3, 4], [7, 2], [2, 11], [6, 15], [26, 8], [29, 13], [24, 16], [30, 3],
+        ].map(([x, y]) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="#f2f5f9" />
+        ))}
+        {/* moon */}
+        <rect x="24" y="2" width="4" height="2" fill="#aab4c4" />
+        <rect x="25" y="4" width="4" height="2" fill="#aab4c4" />
+        <rect x="27" y="1" width="2" height="1" fill="#aab4c4" />
+        {/* grass */}
+        <rect x="0" y="27" width="32" height="5" fill="#3d6a3a" />
+        <rect x="0" y="27" width="32" height="1" fill="#4a7d46" />
+        {/* castle */}
+        <g transform="translate(4 7)">
+          <PixelRects sprite={CASTLE} />
+        </g>
       </g>
-      {/* battlements */}
-      <g fill="#c9b48c">
-        <rect x="26" y="56" width="26" height="8" />
-        <rect x="108" y="56" width="26" height="8" />
-        <rect x="58" y="42" width="44" height="8" />
-      </g>
-      {/* roofs */}
-      <polygon points="39,60 24,42 54,42" fill="#e4342b" />
-      <polygon points="121,60 106,42 136,42" fill="#e4342b" />
-      <polygon points="80,46 56,20 104,20" fill="#e4342b" />
-      {/* door + windows */}
-      <path d="M70 142 v-26 a10 10 0 0 1 20 0 v26 z" fill="#7a5a86" />
-      <rect x="34" y="80" width="10" height="16" rx="4" fill="#7a5a86" />
-      <rect x="116" y="80" width="10" height="16" rx="4" fill="#7a5a86" />
-      {/* flag */}
-      <line x1="80" y1="20" x2="80" y2="2" stroke="#8a6d3b" strokeWidth="3" />
-      <polygon className="castle-flag" points="80,3 100,9 80,15" fill="#2b7fd4" />
     </svg>
   );
 }

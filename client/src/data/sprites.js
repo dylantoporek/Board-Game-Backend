@@ -148,3 +148,41 @@ export const SPRITES = {
     ],
   },
 };
+
+// The Castle Dash castle — recreated in pixels from the app's logo artwork:
+// grey towers with battlements, a salmon flag, dark windows, a brown gate.
+// Transparent background so it can sit in any scene.
+export const CASTLE = {
+  palette: {
+    G: "#9fabbc", // center tower (light grey)
+    g: "#8b97a9", // side towers
+    s: "#5f6b7d", // shaded edges
+    d: "#2c3547", // windows / battlement shadow
+    r: "#f07568", // flag
+    w: "#e9edf3", // flagpole
+    D: "#5a4332", // gate
+    B: "#3c2d22", // gate shading
+  },
+  grid: [
+    "........rrrrr...........",
+    "........rrrrrw..........",
+    "........rrrrrw..........",
+    ".............w..........",
+    "........GG.GG.GG........",
+    "........GGGGGGGs........",
+    "........GGGddGGs........",
+    "........GGGddGGs........",
+    "........GGGGGGGs........",
+    "..gg..ggGGGGGGGsgg..gg..",
+    "..ggggggGGGGGGGsgggggs..",
+    "..ggddggGGGGGGGsggddgs..",
+    "..ggggggGGGGGGGsgggggs..",
+    "..ggggggGGGGGGGsgggggs..",
+    "..ggddggGGDDDDGsggddgs..",
+    "..ggggggGGDDDDGsgggggs..",
+    "..ggggggGGDDDBGsgggggs..",
+    "..ggggggGGDDDBGsgggggs..",
+    "..ggggggGGDDDBGsgggggs..",
+    "..ggggggGGDDDBGsgggggs..",
+  ],
+};
